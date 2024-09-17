@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,60 +6,97 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {moderateScale, scale, verticalScale} from '../../utils/Scaling';
 import {COLORS} from '../../Theme/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Instance from '../../api/ApiCall';
 
-const data = [
-  {
-    id: '1',
-    title: 'Navgrah Shanti Puja',
-    description: 'Kundali Mein Bure Graho Ki Shanti Karein Aur Success P...',
-    originalPrice: '₹1500',
-    discountedPrice: '₹799',
-    label: 'For Peace & Happiness In Life',
-    image:
-      'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
-  },
-  {
-    id: '2',
-    title: 'Rahu-Ketu Shanti Puja',
-    description: 'Apni Har Pareshani Aur Negativity Ko Door Karne Ke Liye...',
-    originalPrice: '₹1500',
-    discountedPrice: '₹699',
-    label: 'Apna Har Kaam Bane',
-    image:
-      'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
-  },
-  {
-    id: '3',
-    title: 'Mangal Dosh Nivaran Puja',
-    description: 'Mangal Dosh Se Mukti Ke Liye Vishesh Puja',
-    originalPrice: '₹1500',
-    discountedPrice: '₹699',
-    label: 'Resolves Problems In Married Life',
-    image:
-      'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
-  },
-];
+// const data = [
+//   {
+//     id: '1',
+//     title: 'Navgrah Shanti Puja',
+//     description: 'Kundali Mein Bure Graho Ki Shanti Karein Aur Success P...',
+//     originalPrice: '₹1500',
+//     discountedPrice: '₹799',
+//     label: 'For Peace & Happiness In Life',
+//     image:
+//       'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
+//   },
+//   {
+//     id: '2',
+//     title: 'Rahu-Ketu Shanti Puja',
+//     description: 'Apni Har Pareshani Aur Negativity Ko Door Karne Ke Liye...',
+//     originalPrice: '₹1500',
+//     discountedPrice: '₹699',
+//     label: 'Apna Har Kaam Bane',
+//     image:
+//       'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
+//   },
+//   {
+//     id: '3',
+//     title: 'Mangal Dosh Nivaran Puja',
+//     description: 'Mangal Dosh Se Mukti Ke Liye Vishesh Puja',
+//     originalPrice: '₹1500',
+//     discountedPrice: '₹699',
+//     label: 'Resolves Problems In Married Life',
+//     image:
+//       'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
+//   },
+// ];
 
 const BookPujaScreen = ({navigation}) => {
+  const [pujas, setPujas] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchPujas = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) throw new Error('Token not found');
+
+        const response = await Instance.get('/api/astro-services/pujas', {
+          headers: {Authorization: `Bearer ${token}`},
+        });
+        // console.log('Puja', response.data);
+        if (response.data) {
+          setPujas(response.data);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPujas();
+  }, []);
+
   const renderItem = ({item}) => (
     <View style={styles.card}>
       <ImageBackground
-        source={{uri: item.image}}
+        source={{
+          uri:
+            item.image ||
+            'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
+        }}
         style={styles.imageBackground}>
         <View style={styles.textContainer}>
-          <Text style={styles.label}>{item.label}</Text>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.description}>{item.description}</Text>
+          {item.label ? <Text style={styles.label}>{item.label}</Text> : null}
+          <Text style={styles.title}>{item.PujaName || 'Puja name'}</Text>
+          <Text
+            style={styles.description}
+            ellipsizeMode="tail"
+            numberOfLines={2}>
+            {item.description || 'puja description'}
+          </Text>
         </View>
       </ImageBackground>
       <View style={styles.priceContainer}>
-        <Text style={styles.originalPrice}>{item.originalPrice}</Text>
-        <Text style={styles.discountedPrice}>{item.discountedPrice}</Text>
+        {/* <Text style={styles.originalPrice}>{item.originalPrice}</Text> */}
+        <Text style={styles.discountedPrice}> ₹{item.price || '100'} </Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('PujaDetails')}
+          onPress={() => navigation.navigate('PujaDetails', {data: item})}
           style={styles.bookNowButton}>
           <Text style={styles.bookNowText}>Book Now</Text>
         </TouchableOpacity>
@@ -69,16 +106,25 @@ const BookPujaScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
-      />
+      {loading ? (
+        <View style={styles.indicator}>
+          <ActivityIndicator size="small" color={COLORS.primary} />
+        </View>
+      ) : error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : pujas === null ? (
+        <Text style={styles.errorText}>data not available</Text>
+      ) : (
+        <FlatList
+          data={pujas}
+          renderItem={renderItem}
+          keyExtractor={item => item._id}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

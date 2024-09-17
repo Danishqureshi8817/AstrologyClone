@@ -19,14 +19,14 @@ const data = [
     image:
       'https://astrowaniindia.com/wp-content/uploads/2024/05/second-300x300.jpg',
   },
-  {
-    id: '2',
-    title: 'VIP E-Puja',
-    description:
-      'Experience high-priority, personalized rituals for maximum spiritual benefits.',
-    image:
-      'https://astrowaniindia.com/wp-content/uploads/2024/05/second-300x300.jpg',
-  },
+  // {
+  //   id: '2',
+  //   title: 'VIP E-Puja',
+  //   description:
+  //     'Experience high-priority, personalized rituals for maximum spiritual benefits.',
+  //   image:
+  //     'https://astrowaniindia.com/wp-content/uploads/2024/05/second-300x300.jpg',
+  // },
   {
     id: '3',
     title: 'Gemstones',
@@ -43,29 +43,19 @@ const data = [
     image:
       'https://astrowaniindia.com/wp-content/uploads/2024/05/second-300x300.jpg',
   },
-  {
-    id: '5',
-    title: 'Gemstones',
-    description:
-      'Buy certified gemstones to balance energies and support your astrological goals.',
-    image:
-      'https://astrowaniindia.com/wp-content/uploads/2024/05/second-300x300.jpg',
-  },
-  {
-    id: '6',
-    title: 'Gemstones',
-    description:
-      'Buy certified gemstones to balance energies and support your astrological goals.',
-    image:
-      'https://astrowaniindia.com/wp-content/uploads/2024/05/second-300x300.jpg',
-  },
 ];
 
 const Remedies = ({navigation}) => {
+  const handleBookPuja = item => {
+    if (item.title === 'Group Puja') {
+      navigation.navigate('BookPujaScreen');
+    } else if (item.title === 'Gemstones') {
+      navigation.navigate('GemstoneList');
+    }
+  };
+
   const renderItem = ({item}) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('BookPujaScreen')}
-      style={styles.card}>
+    <TouchableOpacity onPress={() => handleBookPuja(item)} style={styles.card}>
       <View style={styles.textContainer}>
         <View style={styles.textOverlay}>
           <Text style={styles.title}>{item.title}</Text>
