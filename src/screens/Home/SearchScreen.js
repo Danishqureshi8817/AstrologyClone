@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ReusableList from '../component/ReusableList';
 import {COLORS} from '../../Theme/Colors';
 import {scale, verticalScale, moderateScale} from '../../utils/Scaling';
+import debounce from 'lodash.debounce';
 
 const SearchScreen = ({navigation, route}) => {
-  const {data} = route.params;
-
+  const {data = []} = route.params || {};
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState([]);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
@@ -33,9 +33,9 @@ const SearchScreen = ({navigation, route}) => {
   ];
 
   const filterAstrologers = query => {
-    if (!query) return;
+    if (!query || data?.length === 0) return;
 
-    const filtered = data.filter(astrologer => {
+    const filtered = data?.filter(astrologer => {
       const {name, specialties} = astrologer;
 
       const isNameMatch = name.toLowerCase().includes(query.toLowerCase());
@@ -49,16 +49,24 @@ const SearchScreen = ({navigation, route}) => {
     setFilteredData(filtered);
   };
 
-  const handleSearchSubmit = () => {
-    filterAstrologers(searchQuery);
-    setSearchSubmitted(true);
-  };
+  // const handleSearchSubmit = () => {
+  //   filterAstrologers(searchQuery);
+  //   setSearchSubmitted(true);
+  // };
+
+  const debouncedFilterAstrologers = useCallback(
+    debounce(filterAstrologers, 1000),
+    [data],
+  );
 
   const handleSearchChange = text => {
     setSearchQuery(text);
     if (text === '') {
       setFilteredData([]);
       setSearchSubmitted(false);
+    } else {
+      debouncedFilterAstrologers(text);
+      setSearchSubmitted(true);
     }
   };
 
@@ -80,7 +88,7 @@ const SearchScreen = ({navigation, route}) => {
             placeholderTextColor="#ccc"
             value={searchQuery}
             onChangeText={handleSearchChange}
-            onSubmitEditing={handleSearchSubmit}
+            // onSubmitEditing={handleSearchSubmit}
             keyboardType="email-address"
           />
         </View>
@@ -88,7 +96,7 @@ const SearchScreen = ({navigation, route}) => {
 
       {/* Search Results or "No astrologer found" message */}
       {searchSubmitted ? (
-        filteredData.length > 0 ? (
+        filteredData?.length > 0 ? (
           <ReusableList
             data={filteredData}
             buttonType="chat"

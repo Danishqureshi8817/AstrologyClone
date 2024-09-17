@@ -58,6 +58,8 @@ import RefundAndCancel from '../screens/drawerScreens/RefundAndCancel';
 import PrivacyPolicy from '../screens/drawerScreens/PrivacyPolicy';
 import TermsOfUse from '../screens/drawerScreens/TermsOfUse';
 import PersonToPersonChat from '../screens/component/PersonToPersonChat';
+import GemstoneDetails from '../screens/Remedies/GemstoneDetails';
+import GemstoneList from '../screens/Remedies/GemstoneList';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -450,6 +452,36 @@ export default function Navigation({navigation}) {
           component={BlogScreen}
           options={({route}) => ({
             title: route.params?.blog?.category?.name || 'Blog',
+            headerStyle: {
+              backgroundColor: COLORS.darkYellow,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontSize: moderateScale(18),
+            },
+            tabBarStyle: {display: 'none'},
+          })}
+        />
+        <Stack.Screen
+          name="GemstoneDetails"
+          component={GemstoneDetails}
+          options={({route}) => ({
+            title: 'Gemstone Details',
+            headerStyle: {
+              backgroundColor: COLORS.darkYellow,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontSize: moderateScale(18),
+            },
+            tabBarStyle: {display: 'none'},
+          })}
+        />
+        <Stack.Screen
+          name="GemstoneList"
+          component={GemstoneList}
+          options={({route}) => ({
+            title: 'Gemstones',
             headerStyle: {
               backgroundColor: COLORS.darkYellow,
             },

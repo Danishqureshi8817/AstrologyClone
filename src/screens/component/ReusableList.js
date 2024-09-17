@@ -115,7 +115,7 @@ const ReusableList = ({data, actionButton, handleAstrologer, buttonType}) => {
   return (
     <FlatList
       data={data}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item._id}
       renderItem={renderItem}
       contentContainerStyle={styles.container}
     />

@@ -6,49 +6,53 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {COLORS} from '../../Theme/Colors';
 import {moderateScale, scale, verticalScale} from '../../utils/Scaling';
 
-const PujaDetails = () => {
-  const benefits = [
-    'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
-    'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
-    'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
-    'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
-  ];
+const PujaDetails = ({route, navigation}) => {
+  const {data} = route.params || {};
+  // const benefits = [
+  //   'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
+  //   'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
+  //   'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
+  //   'Doing this Puja helps reduce the bad effects of Mangal Dosh, bringing more happiness and stability in marriages and relationships.',
+  // ];
 
   return (
     <View style={styles.container}>
       <ScrollView>
         <ImageBackground
           source={{
-            uri: 'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
+            uri:
+              data.image ||
+              'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
           }}
           style={styles.imageBackground}>
-          <Text style={styles.bannerText}>
-            Resolves Problems In Married Life
-          </Text>
+          {data.label ? (
+            <Text style={styles.bannerText}>{data.label}</Text>
+          ) : null}
         </ImageBackground>
 
         <View style={styles.detailsContainer}>
-          <Text style={styles.title}>Mangal Dosh Nivaran Puja</Text>
-          <Text style={styles.subtitle}>
+          <Text style={styles.title}>{data.pujaName || 'Puja name'}</Text>
+          {/* <Text style={styles.subtitle}>
             Mangal Dosh Se Mukti Ke Liye Vishesh Puja
-          </Text>
+          </Text> */}
 
           <Text style={styles.description}>
-            Mangal Dosh Nivaran Puja is done to reduce the bad effect of Mangal
-            (Mars) Dosh in a person's Kundali...
+            {data.description || 'Description here'}
           </Text>
 
           <Text style={styles.label}>
-            • Duration: <Text style={styles.detailText}>1 Hour</Text>
+            • Duration:{' '}
+            <Text style={styles.detailText}>{data.duration || '0'} Hour</Text>
           </Text>
           <Text style={styles.label}>
             • Pooja God or Goddess:
-            <Text style={styles.detailText}> Mars (Mangal)</Text>
+            <Text style={styles.detailText}> {data.godName || 'God'}</Text>
           </Text>
 
           <View style={styles.separator}></View>
@@ -56,26 +60,32 @@ const PujaDetails = () => {
           {/* Benefits Section */}
           <Text style={styles.benefitsTitle}>Benefits</Text>
           <View style={styles.benefitsContainer}>
-            {benefits.map((benefit, index) => (
-              <View key={index} style={styles.benefitItem}>
-                <Icon
-                  name="check-circle"
-                  size={moderateScale(16)}
-                  color="#4CAF50"
-                  style={styles.benefitIcon}
-                />
-                <Text style={styles.benefitText}>{benefit}</Text>
-              </View>
-            ))}
+            {data?.benefits ? (
+              data.benefits?.map((benefit, index) => (
+                <View key={index} style={styles.benefitItem}>
+                  <Icon
+                    name="check-circle"
+                    size={moderateScale(16)}
+                    color="#4CAF50"
+                    style={styles.benefitIcon}
+                  />
+                  <Text style={styles.benefitText}>{benefit}</Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.benefitText}>Benifits here ..</Text>
+            )}
           </View>
         </View>
       </ScrollView>
       <View style={styles.footer}>
         <Text style={styles.price}>
-          <Text style={styles.originalPrice}>₹1500 </Text>
-          <Text style={styles.discountedPrice}>₹699</Text>
+          {/* <Text style={styles.originalPrice}>₹1500 </Text> */}
+          <Text style={styles.discountedPrice}>₹{data.price || '0'}</Text>
         </Text>
-        <TouchableOpacity style={styles.bookButton}>
+        <TouchableOpacity
+          onPress={() => Alert.alert('take to the payment gatway ')}
+          style={styles.bookButton}>
           <Text style={styles.bookButtonText}>Book Now</Text>
         </TouchableOpacity>
       </View>
