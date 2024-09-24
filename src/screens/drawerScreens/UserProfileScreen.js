@@ -20,7 +20,8 @@ import Instance from '../../api/ApiCall';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 
-const UserProfileScreen = () => {
+const UserProfileScreen = ({navigation, route}) => {
+  const {user} = route.params;
   const [activeTab, setActiveTab] = useState('Update Profile');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -30,20 +31,20 @@ const UserProfileScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const [userProfile, setUserProfile] = useState({
-    profilePic: null,
-    email: '',
-    firstName: '',
-    lastName: '',
-    gender: '',
-    maritalStatus: '',
+    profilePic: user.profilePic || '',
+    email: user.email || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    gender: user.gender || '',
+    maritalStatus: user.maritalStatus || '',
     dateOfBirth: '',
     timeOfBirth: '',
-    phoneNumber: '',
+    phoneNumber: user.phoneNumber || '',
     address: {
-      city: '',
-      pinCode: '',
-      location: '',
-      State: '',
+      city: (user.address && user.address.city) || '',
+      pinCode: (user.address && user.address.pinCode) || '',
+      location: (user.address && user.address.location) || '',
+      State: (user.address && user.address.State) || '',
     },
   });
 
@@ -122,8 +123,9 @@ const UserProfileScreen = () => {
           'Content-Type': 'application/json',
         },
       });
-      if (response) {
+      if (response.data) {
         Alert.alert('Updated successfully');
+        navigation.goBack();
       }
     } catch (err) {
       console.error('Error updating profile:', err);
@@ -336,7 +338,7 @@ const UserProfileScreen = () => {
               <Text style={styles.editButtonText}>Edit</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.userName}>Mukesh kumar</Text>
+          <Text style={styles.userName}>{user.firstName || 'user'}</Text>
         </View>
       );
     }

@@ -1,25 +1,75 @@
-import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useState, useCallback, useEffect} from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {moderateScale, scale, verticalScale} from '../utils/Scaling';
 import {COLORS} from '../Theme/Colors';
+import Instance from '../api/ApiCall';
 
-function CustomDrawerContent(props) {
+function CustomDrawerContent(props, navigation) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserProfile();
+    }, []),
+  );
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+
+      if (!token) {
+        throw new Error('Token not found');
+      }
+      const response = await Instance.get('/api/users/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data) {
+        setUser(response.data.data);
+        console.log('user', response.data.data);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setLoading(false);
+    }
+  };
+
   return (
     <DrawerContentScrollView {...props}>
       <TouchableOpacity
         style={styles.userInfoSection}
-        onPress={() => props.navigation.navigate('UserProfileScreen')}>
-        <Icon name="account-circle" size={50} color="#000" />
+        onPress={() =>
+          props.navigation.navigate('UserProfileScreen', {user: user})
+        }>
+        {user?.profilePic ? (
+          <Image source={{uri: user?.profilePic}} style={styles.profile} />
+        ) : (
+          <Icon name="account-circle" size={50} color={COLORS.AstroMaroon} />
+        )}
+
         <View style={styles.nameMobile}>
           <View style={styles.userNamerow}>
-            <Text style={styles.userName}>John doe </Text>
-            <Icon style={styles.editIcon} name="edit" size={17} color="#000" />
+            <Text style={styles.userName}>
+              {user?.firstName || user?.phoneNumber || 'User'}{' '}
+            </Text>
+            <Icon
+              style={styles.editIcon}
+              name="edit"
+              size={17}
+              color={COLORS.AstroMaroon}
+            />
           </View>
-          <Text style={styles.phone}>9898839397</Text>
+          <Text style={styles.phone}>{user?.email || 'email'}</Text>
         </View>
       </TouchableOpacity>
 
@@ -143,6 +193,11 @@ const styles = StyleSheet.create({
   },
   socialheadig: {
     color: '#000',
+  },
+  profile: {
+    width: scale(50),
+    height: verticalScale(50),
+    borderRadius: moderateScale(25),
   },
   userName: {
     fontSize: moderateScale(17),

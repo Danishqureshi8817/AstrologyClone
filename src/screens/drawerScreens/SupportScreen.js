@@ -4,12 +4,16 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState} from 'react';
 import {COLORS} from '../../Theme/Colors';
 import {moderateScale, scale, verticalScale} from '../../utils/Scaling';
 import {Dropdown} from 'react-native-element-dropdown';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Instance from '../../api/ApiCall';
 
 const SupportScreen = () => {
   const Issues = [
@@ -27,6 +31,49 @@ const SupportScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!name || !email || !issue || !message) {
+      Alert.alert('Please fill all fields before submitting.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('token');
+
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
+      const response = await Instance.post(
+        '/api/support/create-support',
+        {
+          name: name,
+          email: email,
+          issueType: issue,
+          message: message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log('data', response.data);
+      setName('');
+      setEmail('');
+      setIssue(null);
+      setMessage('');
+
+      Alert.alert('Support request submitted successfully!');
+    } catch (err) {
+      console.log(err.message);
+      Alert.alert('Error:', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -89,8 +136,12 @@ const SupportScreen = () => {
           onChangeText={setMessage}
         />
 
-        <TouchableOpacity style={styles.submitBtn}>
-          <Text style={styles.submitBtnTxt}>Submit</Text>
+        <TouchableOpacity onPress={handleSubmit} style={styles.submitBtn}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.submitBtnTxt}>Submit</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
