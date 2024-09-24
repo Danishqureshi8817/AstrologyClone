@@ -11,6 +11,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {COLORS} from '../../Theme/Colors';
 import {moderateScale, scale, verticalScale} from '../../utils/Scaling';
+import ImageSlider from '../component/ImageSlider';
 
 const GemstoneDetails = ({route, navigation}) => {
   const {data} = route.params || {};
@@ -24,17 +25,10 @@ const GemstoneDetails = ({route, navigation}) => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <ImageBackground
-          source={{
-            uri:
-              data.image ||
-              'https://th.bing.com/th/id/OIP.XKhDJsAyX2WTH1q0Y-ZtRAHaDu?w=347&h=176&c=7&r=0&o=5&pid=1.7',
-          }}
-          style={styles.imageBackground}>
-          {data.label ? (
-            <Text style={styles.bannerText}>{data.label}</Text>
-          ) : null}
-        </ImageBackground>
+        <ImageSlider
+          data={data.images || imageData}
+          imageStyle={styles.sliderimage}
+        />
 
         <View style={styles.detailsContainer}>
           <Text style={styles.title}>{data.name || 'name'}</Text>
@@ -116,6 +110,9 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(13),
     alignSelf: 'center',
     borderTopColor: 'rgba(128, 0, 0, 0.1)',
+  },
+  sliderimage: {
+    height: verticalScale(160),
   },
 
   footer: {
